@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html><head><base target="_top">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{font-size:13px;color:#202124;background:#fff;padding:16px}
+h3{font-size:14px;font-weight:bold;color:#1F3864;margin-bottom:4px}
+.subtitle{font-size:11px;color:#888;margin-bottom:14px}
+.q-card{border:1px solid #e0e0e0;border-radius:6px;padding:12px;margin-bottom:12px}
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.q-label{font-size:12px;font-weight:bold;color:#202124;flex:1}
+.q-type{font-size:10px;padding:2px 7px;border-radius:3px;background:#E6F1FB;color:#0C447C}
+.preset-row{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.preset-btn{font-size:10px;padding:3px 8px;border-radius:3px;border:1px solid #ccc;background:#fff;cursor:pointer;color:#555}
+.preset-btn:hover{background:#f0f0f0}
+.preset-btn.active{background:#1F3864;color:#fff;border-color:#1F3864}
+.option-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.option-label{font-size:12px;color:#202124;flex:0 0 120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.option-slider{flex:1}
+.option-pct{font-size:11px;font-weight:bold;color:#1F3864;min-width:36px;text-align:right}
+.option-count{font-size:11px;color:#888;min-width:40px;text-align:right}
+.total-row{display:flex;justify-content:space-between;font-size:11px;margin-top:6px;padding-top:6px;border-top:1px solid #eee}
+.total-label{color:#888}
+.total-val{font-weight:bold}
+.total-val.ok{color:#1D9E75}
+.total-val.err{color:#E24B4A}
+.mode-row{display:flex;gap:8px;margin-bottom:8px}
+.mode-btn{flex:1;padding:5px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:11px;color:#555;text-align:center}
+.mode-btn.active{background:#1F3864;color:#fff;border-color:#1F3864}
+.cb-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cb-label{font-size:12px;flex:0 0 120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-slider{flex:1}
+.cb-pct{font-size:11px;font-weight:bold;color:#1F3864;min-width:36px;text-align:right}
+.divider{height:1px;background:#e0e0e0;margin:14px 0}
+.preview-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.preview-table th{background:#f5f5f5;padding:5px 8px;text-align:left;border:1px solid #e0e0e0;font-weight:bold}
+.preview-table td{padding:4px 8px;border:1px solid #e0e0e0;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-row{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:4px;font-size:12px;margin-top:8px}
+.status-row.ok{background:#E1F5EE;color:#085041}
+.status-row.err{background:#FCEBEB;color:#A32D2D}
+.status-row.info{background:#E6F1FB;color:#0C447C}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot-green{background:#1D9E75}.dot-red{background:#E24B4A}.dot-blue{background:#378ADD}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn{flex:1;padding:9px;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;border:none}
+.btn-primary{background:#1F3864;color:#fff}
+.btn-primary:hover{background:#162848}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-ghost{background:#fff;color:#555;border:1px solid #ccc}
+.btn-ghost:hover{background:#f5f5f5}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer}
+.btn-sm:hover{background:#f5f5f5}
+.save-row{display:flex;gap:6px;margin-top:8px}
+.save-row input{flex:1;padding:6px 8px;font-size:12px;border:1px solid #ccc;border-radius:4px}
+.spinner{display:inline-block;width:11px;height:11px;border:2px solid #ccc;border-top-color:#1F3864;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+input[type=range]{width:100%;accent-color:#1F3864}
+select{padding:5px 8px;font-size:12px;border:1px solid #ccc;border-radius:4px;outline:none}
+</style>
+</head><body>
+
+<h3>Distribution config</h3>
+<div class="subtitle" id="formTitle">Loading form questions...</div>
+
+<div id="questionsContainer"></div>
+
+<div class="divider"></div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+  <div style="font-size:12px;font-weight:bold;color:#555">Preview</div>
+  <div style="display:flex;gap:6px;align-items:center">
+    <span style="font-size:11px;color:#888">Rows:</span>
+    <select id="previewCount" style="width:60px">
+      <option>3</option><option selected>5</option><option>10</option>
+    </select>
+    <button class="btn-sm" onclick="runPreview()">Generate</button>
+  </div>
+</div>
+<div id="previewArea"><div style="font-size:11px;color:#888">Click Generate to preview rows.</div></div>
+
+<div class="divider"></div>
+
+<div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:6px">Save config</div>
+<div class="save-row">
+  <input type="text" id="configName" placeholder="Config name (e.g. survey_jan)"/>
+  <button class="btn-sm" onclick="saveConfig()">Save</button>
+  <select id="savedConfigs" onchange="loadConfig(this.value)" style="max-width:120px">
+    <option value="">Load saved...</option>
+  </select>
+</div>
+<div id="saveMsg"></div>
+
+<div class="btn-row">
+  <button class="btn btn-ghost" onclick="google.script.host.close()">Cancel</button>
+  <button class="btn btn-primary" id="btnConfirm" onclick="confirmConfig()">Confirm →</button>
+</div>
+
+<script>
+var questions    = [];
+var distConfig   = {};
+var totalRows    = 10;
+var displayMode  = "pct";   // pct | count
+
+window.onload = function() {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      questions = data.questions || [];
+      totalRows = data.totalRows || 10;
+      document.getElementById("formTitle").textContent =
+        (data.formTitle || "Form") + " — " + questions.length + " questions";
+      buildQuestions();
+      loadSavedConfigs();
+    })
+    .withFailureHandler(function(e) {
+      document.getElementById("formTitle").textContent = "Error: " + e.message;
+    })
+    .getDistributionData();
+};
+
+function buildQuestions() {
+  var container = document.getElementById("questionsContainer");
+  container.innerHTML = "";
+  questions.forEach(function(q, qi) {
+    var options = q.options || [];
+    var ftype   = q.type;
+    var div     = document.createElement("div");
+    div.className = "q-card";
+    div.id = "qcard_" + qi;
+
+    var header = '<div class="q-header"><span class="q-label">' + (q.label || q.entry_id) +
+      '</span><span class="q-type">' + ftype + '</span></div>';
+
+    if (["radio","select","scale"].includes(ftype) && options.length) {
+      distConfig[q.entry_id] = distConfig[q.entry_id] || {
+        type: ftype, options: options,
+        weights: options.map(function() { return Math.round(100/options.length * 10)/10; })
+      };
+      div.innerHTML = header + buildSliderBlock(q.entry_id, options, qi);
+    } else if (ftype === "checkbox" && options.length) {
+      distConfig[q.entry_id] = distConfig[q.entry_id] || {
+        type: "checkbox",
+        probs: Object.fromEntries(options.map(function(o) { return [o, 50]; }))
+      };
+      div.innerHTML = header + buildCheckboxBlock(q.entry_id, options, qi);
+    } else if (ftype === "grid") {
+      div.innerHTML = header + '<div style="font-size:11px;color:#888">Grid field — auto-handled per sub-question.</div>';
+    } else {
+      div.innerHTML = header + '<div style="font-size:11px;color:#888">Text field — will submit empty.</div>';
+      distConfig[q.entry_id] = { type: ftype, mode: "blank" };
+    }
+    container.appendChild(div);
+  });
+}
+
+function buildSliderBlock(eid, options, qi) {
+  var html = '<div class="preset-row">';
+  ["uniform","bell","skewed_left","skewed_right","realistic"].forEach(function(p) {
+    html += '<button class="preset-btn" onclick="applyPreset(\'' + eid + '\',\'' + p + '\',' + qi + ')">'
+      + p.replace("_"," ") + '</button>';
+  });
+  html += '</div>';
+  var weights = distConfig[eid].weights;
+  options.forEach(function(opt, i) {
+    var w = Math.round((weights[i] || 0) * 10) / 10;
+    var c = Math.round(w / 100 * totalRows);
+    html += '<div class="option-row">' +
+      '<span class="option-label" title="' + opt + '">' + opt + '</span>' +
+      '<input type="range" class="option-slider" min="0" max="100" step="1" value="' + w +
+      '" oninput="onSlider(\'' + eid + '\',' + i + ',this.value,' + qi + ')" />' +
+      '<span class="option-pct" id="pct_' + eid + '_' + i + '">' + w + '%</span>' +
+      '<span class="option-count" id="cnt_' + eid + '_' + i + '">' + c + '</span>' +
+      '</div>';
+  });
+  var total = weights.reduce(function(a,b){return a+b;},0);
+  html += '<div class="total-row"><span class="total-label">Total</span>' +
+    '<span class="total-val ' + (Math.abs(total-100)<1?"ok":"err") + '" id="total_' + eid + '">' +
+    Math.round(total) + '%</span></div>';
+  return html;
+}
+
+function buildCheckboxBlock(eid, options, qi) {
+  var probs = distConfig[eid].probs;
+  var html  = '<div style="font-size:11px;color:#888;margin-bottom:6px">Independent selection probability per option</div>';
+  options.forEach(function(opt, i) {
+    var p = probs[opt] !== undefined ? probs[opt] : 50;
+    html += '<div class="cb-row">' +
+      '<span class="cb-label" title="' + opt + '">' + opt + '</span>' +
+      '<input type="range" class="cb-slider" min="0" max="100" step="1" value="' + p +
+      '" oninput="onCbSlider(\'' + eid + '\',\'' + opt + '\',this.value)" />' +
+      '<span class="cb-pct" id="cbpct_' + eid + '_' + i + '">' + p + '%</span>' +
+      '</div>';
+  });
+  return html;
+}
+
+function onSlider(eid, idx, val, qi) {
+  distConfig[eid].weights[idx] = parseFloat(val);
+  var weights = distConfig[eid].weights;
+  var options = distConfig[eid].options;
+  options.forEach(function(_, i) {
+    var w = Math.round((weights[i]||0)*10)/10;
+    var c = Math.round(w/100*totalRows);
+    var pe = document.getElementById("pct_"+eid+"_"+i);
+    var ce = document.getElementById("cnt_"+eid+"_"+i);
+    if(pe) pe.textContent = w + "%";
+    if(ce) ce.textContent = c;
+  });
+  var total = weights.reduce(function(a,b){return a+b;},0);
+  var te = document.getElementById("total_"+eid);
+  if(te){ te.textContent = Math.round(total)+"%"; te.className="total-val "+(Math.abs(total-100)<1?"ok":"err"); }
+}
+
+function onCbSlider(eid, opt, val) {
+  distConfig[eid].probs[opt] = parseFloat(val);
+  var options = distConfig[eid].options || Object.keys(distConfig[eid].probs);
+  var idx = options.indexOf(opt);
+  var el  = document.getElementById("cbpct_"+eid+"_"+idx);
+  if(el) el.textContent = val+"%";
+}
+
+function applyPreset(eid, preset, qi) {
+  var options = distConfig[eid].options;
+  google.script.run
+    .withSuccessHandler(function(res) {
+      distConfig[eid].weights = res.weights;
+      var card = document.getElementById("qcard_"+qi);
+      if(card) {
+        var header = card.querySelector(".q-header").outerHTML;
+        card.innerHTML = header + buildSliderBlock(eid, options, qi);
+      }
+      card.querySelectorAll(".preset-btn").forEach(function(b){
+        b.classList.toggle("active", b.textContent.replace(" ","_")===preset);
+      });
+    })
+    .applyPreset(options, preset);
+}
+
+function runPreview() {
+  var n = parseInt(document.getElementById("previewCount").value) || 5;
+  document.getElementById("previewArea").innerHTML =
+    '<div class="status-row info"><span class="spinner"></span>Generating preview...</div>';
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if(!res.success){ document.getElementById("previewArea").innerHTML='<div class="status-row err"><div class="dot dot-red"></div>'+res.error+'</div>'; return; }
+      var rows = res.rows;
+      if(!rows.length){ document.getElementById("previewArea").innerHTML='<div style="font-size:11px;color:#888">No rows generated.</div>'; return; }
+      var keys = Object.keys(rows[0]);
+      var html = '<div style="overflow-x:auto"><table class="preview-table"><thead><tr>';
+      keys.forEach(function(k){ html+='<th>'+k+'</th>'; });
+      html+='</tr></thead><tbody>';
+      rows.forEach(function(row){
+        html+='<tr>';
+        keys.forEach(function(k){ html+='<td title="'+String(row[k]||"")+'">'+String(row[k]||"")+'</td>'; });
+        html+='</tr>';
+      });
+      html+='</tbody></table></div>';
+      document.getElementById("previewArea").innerHTML=html;
+    })
+    .withFailureHandler(function(e){
+      document.getElementById("previewArea").innerHTML='<div class="status-row err"><div class="dot dot-red"></div>'+e.message+'</div>';
+    })
+    .previewDistribution(distConfig, n);
+}
+
+function saveConfig() {
+  var name = document.getElementById("configName").value.trim();
+  if(!name){ document.getElementById("saveMsg").innerHTML='<div style="font-size:11px;color:#E24B4A">Enter a config name.</div>'; return; }
+  google.script.run
+    .withSuccessHandler(function(res){
+      document.getElementById("saveMsg").innerHTML = res.success
+        ? '<div style="font-size:11px;color:#1D9E75">Saved: '+res.name+'</div>'
+        : '<div style="font-size:11px;color:#E24B4A">Error: '+res.error+'</div>';
+      loadSavedConfigs();
+    })
+    .saveDistConfig(distConfig, name);
+}
+
+function loadSavedConfigs() {
+  google.script.run
+    .withSuccessHandler(function(configs){
+      var sel = document.getElementById("savedConfigs");
+      sel.innerHTML = '<option value="">Load saved...</option>';
+      configs.forEach(function(c){ var o=document.createElement("option"); o.value=o.textContent=c; sel.appendChild(o); });
+    })
+    .listDistConfigs();
+}
+
+function loadConfig(name) {
+  if(!name) return;
+  google.script.run
+    .withSuccessHandler(function(res){
+      if(!res.success){ alert("Error: "+res.error); return; }
+      distConfig = res.dist_config;
+      buildQuestions();
+    })
+    .loadDistConfig(name);
+}
+
+function confirmConfig() {
+  google.script.run
+    .withSuccessHandler(function(){ google.script.host.close(); })
+    .setDistConfig(distConfig);
+}
+</script>
+</body></html>

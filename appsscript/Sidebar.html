@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html><head><base target="_top">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{font-size:13px;color:#202124;background:#fff}
+.topbar{background:#1F3864;padding:10px 14px;display:flex;align-items:center;gap:8px}
+.topbar-logo{width:20px;height:20px;background:#378ADD;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:bold}
+.topbar-title{color:#fff;font-size:13px;font-weight:bold;flex:1}
+.srv-dot{width:7px;height:7px;border-radius:50%;background:#888}
+.srv-dot.online{background:#1D9E75}
+.srv-label{font-size:10px;color:#B4B2A9}
+.srv-label.online{color:#9FE1CB}
+.step-bar{display:flex;padding:10px 14px;border-bottom:1px solid #e0e0e0;align-items:center}
+.step{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;border:1px solid #ccc;color:#888;background:#fff}
+.step-num.active{background:#1F3864;color:#fff;border-color:#1F3864}
+.step-num.done{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.step-lbl{font-size:10px;color:#888}
+.step-lbl.active{color:#1F3864;font-weight:bold}
+.connector{flex:1;height:1px;background:#e0e0e0;margin:0 4px;margin-bottom:10px}
+.connector.done{background:#1D9E75}
+.body{padding:14px}
+.field-label{font-size:11px;font-weight:bold;color:#555;margin-bottom:4px}
+.field-group{margin-bottom:14px}
+.field-hint{font-size:11px;color:#888;margin-top:3px}
+select,input[type=text]{width:100%;padding:7px 9px;font-size:13px;border:1px solid #ccc;border-radius:4px;outline:none;color:#202124}
+select:focus,input[type=text]:focus{border-color:#1F3864}
+.status-row{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:4px;font-size:12px;margin-top:6px}
+.status-row.ok{background:#E1F5EE;color:#085041}
+.status-row.err{background:#FCEBEB;color:#A32D2D}
+.status-row.info{background:#E6F1FB;color:#0C447C}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#1D9E75}
+.dot-red{background:#E24B4A}
+.dot-blue{background:#378ADD}
+.btn{width:100%;padding:9px;border-radius:4px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:10px;border:none}
+.btn-primary{background:#1F3864;color:#fff}
+.btn-primary:hover{background:#162848}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-ghost{background:#fff;color:#555;border:1px solid #ccc}
+.btn-ghost:hover{background:#f5f5f5}
+.stat-row{display:flex;gap:8px;margin-top:10px}
+.stat-box{flex:1;background:#f5f5f5;border-radius:4px;padding:8px;text-align:center}
+.stat-val{font-size:20px;font-weight:bold;color:#202124}
+.stat-lbl{font-size:10px;color:#888;margin-top:1px}
+.map-card{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px;padding:8px;margin-top:8px}
+.map-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #eee;font-size:11px}
+.map-row:last-child{border-bottom:none}
+.map-col{font-weight:bold;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-arr{color:#aaa}
+.map-entry{color:#185FA5;font-family:monospace;font-size:10px;flex:1;overflow:hidden;text-overflow:ellipsis}
+.map-badge{font-size:9px;padding:1px 5px;border-radius:3px;background:#E1F5EE;color:#085041;flex-shrink:0}
+.map-badge.warn{background:#FAEEDA;color:#633806}
+.module-card{border:1px solid #e0e0e0;border-radius:6px;padding:12px;cursor:pointer;margin-bottom:8px}
+.module-card:hover{border-color:#1F3864}
+.module-card.selected{border:2px solid #1F3864}
+.module-title{font-size:13px;font-weight:bold;margin-bottom:3px}
+.module-desc{font-size:11px;color:#666;margin-bottom:6px}
+.tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px;margin-right:4px}
+.tag-coral{background:#FAECE7;color:#712B13}
+.tag-amber{background:#FAEEDA;color:#633806}
+.tag-teal{background:#E1F5EE;color:#085041}
+.screen{display:none}
+.screen.active{display:block}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid #ccc;border-top-color:#1F3864;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.banner{background:#E6F1FB;border-radius:4px;padding:9px 11px;font-size:12px;color:#0C447C;margin-bottom:12px;line-height:1.5}
+.divider{height:1px;background:#e0e0e0;margin:12px 0}
+.warn-row{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:4px;font-size:12px;background:#FCEBEB;color:#A32D2D;margin-top:8px}
+</style>
+</head><body>
+<div class="topbar">
+  <div class="topbar-logo">FI</div>
+  <div class="topbar-title">FormIntellect</div>
+  <div class="srv-dot" id="srvDot"></div>
+  <div class="srv-label" id="srvLabel">checking...</div>
+</div>
+<div class="step-bar">
+  <div class="step"><div class="step-num active" id="sn1">1</div><div class="step-lbl active" id="sl1">Setup</div></div>
+  <div class="connector" id="con1"></div>
+  <div class="step"><div class="step-num" id="sn2">2</div><div class="step-lbl" id="sl2">Detect</div></div>
+  <div class="connector" id="con2"></div>
+  <div class="step"><div class="step-num" id="sn3">3</div><div class="step-lbl" id="sl3">Module</div></div>
+</div>
+<div class="body">
+  <div class="screen active" id="screen1">
+    <div class="banner">Select the sheet with your response data, then paste your Google Form pre-filled link.</div>
+    <div class="field-group">
+      <div class="field-label">Sheet in this workbook</div>
+      <select id="sheetSelect" onchange="onSheetChange()"><option value="">— loading... —</option></select>
+      <div class="field-hint" id="sheetHint"></div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Google Form pre-filled link</div>
+      <input type="text" id="linkInput" placeholder="https://docs.google.com/forms/d/..." oninput="onLinkInput()"/>
+      <div id="linkStatus"></div>
+      <div class="field-hint">Open form → three dots menu → Get pre-filled link</div>
+    </div>
+    <button class="btn btn-primary" id="btnDetect" disabled onclick="goDetect()">Detect fields →</button>
+  </div>
+  <div class="screen" id="screen2">
+    <div id="detectingState">
+      <div class="status-row info"><span class="spinner"></span><span id="detectMsg">Connecting to server...</span></div>
+    </div>
+    <div id="detectResult" style="display:none">
+      <div class="status-row ok"><div class="dot dot-green"></div><span id="detectOkMsg">Fields detected</span></div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-val" id="statPending">-</div><div class="stat-lbl">Pending</div></div>
+        <div class="stat-box"><div class="stat-val" id="statFields">-</div><div class="stat-lbl">Fields</div></div>
+        <div class="stat-box"><div class="stat-val" id="statDone">-</div><div class="stat-lbl">Done</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="field-label">Column to field mapping</div>
+      <div class="map-card" id="mapCard"></div>
+      <div id="warnRow" class="warn-row" style="display:none"><div class="dot dot-red"></div><span id="warnMsg"></span></div>
+      <button class="btn btn-primary" onclick="goModules()">Continue →</button>
+      <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+    </div>
+    <div id="detectError" style="display:none">
+      <div class="status-row err"><div class="dot dot-red"></div><span id="detectErrMsg">Error</span></div>
+      <button class="btn btn-ghost" style="margin-top:10px" onclick="goStep(1)">← Back</button>
+    </div>
+  </div>
+  <div class="screen" id="screen3">
+    <div class="field-label" style="margin-bottom:10px;color:#666">Choose a module to launch</div>
+    <div class="module-card" id="mod-submit" onclick="selectModule('submit')">
+      <div class="module-title">Module 1 — Submit from sheet</div>
+      <div class="module-desc">Submit sheet rows to the form with scheduling, retry, and live progress.</div>
+      <span class="tag tag-coral">Scheduler</span><span class="tag tag-coral">Auto-retry</span><span class="tag tag-coral">Live log</span>
+    </div>
+    <div class="module-card" id="mod-generate" onclick="selectModule('generate')">
+      <div class="module-title">Module 2 — Generate by distribution</div>
+      <div class="module-desc">Design response distributions with sliders and generate synthetic data.</div>
+      <span class="tag tag-amber">Sliders</span><span class="tag tag-amber">Presets</span><span class="tag tag-amber">Dry run</span>
+    </div>
+    <div class="module-card" id="mod-analyze" onclick="selectModule('analyze')">
+      <div class="module-title">Module 3 — Analytics</div>
+      <div class="module-desc">Generate a full analysis sheet with charts from submitted response data.</div>
+      <span class="tag tag-teal">Charts</span><span class="tag tag-teal">Frequency</span><span class="tag tag-teal">Export</span>
+    </div>
+    <button class="btn btn-primary" id="btnLaunch" disabled onclick="launchModule()">Launch module →</button>
+    <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+  </div>
+</div>
+<script>
+var currentStep=1,selectedModule=null,detectData=null;
+window.onload=function(){loadSheets();pingServer()};
+function pingServer(){
+  google.script.run.withSuccessHandler(function(res){
+    var d=document.getElementById('srvDot'),l=document.getElementById('srvLabel');
+    if(res.online){d.className='srv-dot online';l.className='srv-label online';l.textContent='server online';}
+    else{d.className='srv-dot';l.className='srv-label';l.textContent='server offline';}
+  }).withFailureHandler(function(){}).pingServer();
+}
+function loadSheets(){
+  google.script.run.withSuccessHandler(function(names){
+    var sel=document.getElementById('sheetSelect');
+    sel.innerHTML='<option value="">— choose a sheet —</option>';
+    names.forEach(function(n){var o=document.createElement('option');o.value=o.textContent=n;sel.appendChild(o);});
+  }).withFailureHandler(function(){}).getSheetNames();
+}
+function onSheetChange(){
+  var v=document.getElementById('sheetSelect').value;
+  document.getElementById('sheetHint').textContent=v?'Selected: '+v:'';
+  checkReady();
+}
+function onLinkInput(){
+  var v=document.getElementById('linkInput').value.trim();
+  var el=document.getElementById('linkStatus');
+  if(!v){el.innerHTML='';checkReady();return;}
+  if(v.includes('docs.google.com/forms')&&v.includes('viewform'))
+    el.innerHTML='<div class="status-row ok" style="margin-top:5px"><div class="dot dot-green"></div>Valid Google Form link</div>';
+  else
+    el.innerHTML='<div class="status-row err" style="margin-top:5px"><div class="dot dot-red"></div>Not a valid pre-filled link</div>';
+  checkReady();
+}
+function checkReady(){
+  var s=document.getElementById('sheetSelect').value;
+  var l=document.getElementById('linkInput').value.trim();
+  document.getElementById('btnDetect').disabled=!(s&&l.includes('docs.google.com/forms')&&l.includes('viewform'));
+}
+function goStep(n){
+  currentStep=n;
+  for(var i=1;i<=3;i++){
+    document.getElementById('screen'+i).className='screen'+(i===n?' active':'');
+    document.getElementById('sn'+i).className='step-num'+(i<n?' done':i===n?' active':'');
+    document.getElementById('sl'+i).className='step-lbl'+(i===n?' active':'');
+  }
+  document.getElementById('con1').className='connector'+(n>1?' done':'');
+  document.getElementById('con2').className='connector'+(n>2?' done':'');
+}
+function goDetect(){
+  goStep(2);
+  document.getElementById('detectingState').style.display='block';
+  document.getElementById('detectResult').style.display='none';
+  document.getElementById('detectError').style.display='none';
+  var steps=['Connecting to server...','Fetching form metadata...','Parsing field types...','Mapping columns to entry IDs...','Validating data...'];
+  var i=0;
+  var iv=setInterval(function(){if(i<steps.length)document.getElementById('detectMsg').textContent=steps[i++];else clearInterval(iv);},400);
+  var sheet=document.getElementById('sheetSelect').value;
+  var link=document.getElementById('linkInput').value.trim();
+  google.script.run
+    .withSuccessHandler(function(res){
+      clearInterval(iv);
+      document.getElementById('detectingState').style.display='none';
+      if(!res.success){document.getElementById('detectErrMsg').textContent=res.error||'Detection failed';document.getElementById('detectError').style.display='block';return;}
+      detectData=res;showDetectResult(res);
+    })
+    .withFailureHandler(function(e){
+      clearInterval(iv);
+      document.getElementById('detectingState').style.display='none';
+      document.getElementById('detectErrMsg').textContent=e.message||'Unknown error';
+      document.getElementById('detectError').style.display='block';
+    })
+    .detectForm(link,sheet);
+}
+function showDetectResult(res){
+  var fc=Object.keys(res.field_types||{}).length;
+  document.getElementById('statPending').textContent=res.pendingCount||0;
+  document.getElementById('statFields').textContent=fc;
+  document.getElementById('statDone').textContent=res.submittedCount||0;
+  document.getElementById('detectOkMsg').textContent=fc+' fields detected - '+(res.pendingCount||0)+' rows pending';
+  var mapping=res.column_mapping||{},types=res.field_types||{},html='';
+  Object.keys(mapping).forEach(function(col){
+    var entry=mapping[col],type=types[entry]||'text',warn=!type||type==='unknown';
+    html+='<div class="map-row"><span class="map-col">'+col+'</span><span class="map-arr">→</span><span class="map-entry">'+entry+'</span><span class="map-badge'+(warn?' warn':'')+'" >'+type+'</span></div>';
+  });
+  document.getElementById('mapCard').innerHTML=html||'<div style="font-size:11px;color:#888">No mapping found</div>';
+  if(res.mapping_error){document.getElementById('warnMsg').textContent=res.mapping_error;document.getElementById('warnRow').style.display='flex';}
+  document.getElementById('detectResult').style.display='block';
+}
+function goModules(){goStep(3);}
+function selectModule(m){
+  selectedModule=m;
+  ['submit','generate','analyze'].forEach(function(id){
+    document.getElementById('mod-'+id).className='module-card'+(id===m?' selected':'');
+  });
+  document.getElementById('btnLaunch').disabled=false;
+}
+function launchModule(){
+  if(!selectedModule)return;
+  alert('Launching: '+selectedModule+'\n\nModule UI coming in the next phase.');
+}
+</script>
+</body></html>
